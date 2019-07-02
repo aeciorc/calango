@@ -1,7 +1,5 @@
-from lexer.tokenizer import Tokenizer
+from lexer.tokenizer import tokenize
 
-result_tokens = Tokenizer.tokenize('lexer/test_data')
+result_tokens = tokenize('lexer/test_data')
 print(result_tokens)
 
-#  _echo(1-1+4)
-#  Expected: [ [_echo, (,1,-,1,+,4,)]

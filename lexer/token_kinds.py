@@ -26,7 +26,7 @@ class UnspecTokens:
     }
 
 
-def generate_stop_signals():
+def load_pausers():
     stop_signs = set()
     for key, value in SpecTokens.TOKENS.items():
         if value == SpecTokens.SYMBOL:
