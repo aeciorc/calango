@@ -1,4 +1,4 @@
-class SpecTokens:
+class CommonTokens:
     KEYWORD = "keyword"  # not yet used
     SYMBOL = "symbol"  # + -  ( ) [ ] ..
 
@@ -14,7 +14,7 @@ class SpecTokens:
     }
 
 
-class UnspecTokens:
+class Identifiers:
     COMMAND = "command"  # external commands like "_echo"
     INTEGER_LITERAL = "integer_literal"
 
@@ -28,8 +28,8 @@ class UnspecTokens:
 
 def load_pausers():
     stop_signs = set()
-    for key, value in SpecTokens.TOKENS.items():
-        if value == SpecTokens.SYMBOL:
+    for key, value in CommonTokens.TOKENS.items():
+        if value == CommonTokens.SYMBOL:
             stop_signs.add(key)
             if len(key) > 1:
                 for char in key:

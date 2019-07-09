@@ -1,8 +1,9 @@
 import re
-from lexer.token_kinds import SpecTokens, UnspecTokens, load_pausers
+from lexer.token_kinds import CommonTokens, Identifiers, load_pausers
 from lexer.token import Token
 
 PAUSERS = load_pausers()
+
 
 def tokenize(filename):
     tokens = []
@@ -15,15 +16,16 @@ def tokenize(filename):
             code_line = code.readline()
     return tokens
 
+
 # token_value can be a char array or a string
 def create_token(token_value):
     token_string = ''.join(token_value)
-    if token_string in SpecTokens.TOKENS:
-        return Token(token_string, SpecTokens.TOKENS[token_string])
+    if token_string in CommonTokens.TOKENS:
+        return Token(token_string, CommonTokens.TOKENS[token_string])
     else:
-        for key in UnspecTokens.TOKENS:
+        for key in Identifiers.TOKENS:
             if re.match(key, token_string):
-                return Token(token_string, UnspecTokens.TOKENS[key])
+                return Token(token_string, Identifiers.TOKENS[key])
     raise Exception("Unexpected token: {}".format(token_string))
 
 
