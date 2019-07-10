@@ -37,7 +37,7 @@ echo(1-1+4)
 echo {1..4}  
 echo $((1-1+4))  
  ``` 
- which should output:  
+ which bash evaluates to:  
  
  ``1 2 3 4``  
  ``4``  
