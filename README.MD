@@ -42,5 +42,4 @@ echo $((1-1+4))
  ``1 2 3 4``  
  ``4``  
  
-### Tokenization  
-The first step is to build a program that reads Calango code returns lists of the tokens found in it, along with their kinds
+
