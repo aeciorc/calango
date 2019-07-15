@@ -1,8 +1,15 @@
 import re
-from lexer.token_kinds import CommonTokens, Identifiers, load_pausers
+from lexer.token_kinds import Symbols, Identifiers, Keywords, Numbers
 from lexer.token import Token
+from more_itertools import peekable
 
-PAUSERS = load_pausers()
+
+class SyntaxError(Exception):
+    """Unexpected token"""
+    pass
+
+
+doublet_pieces = Symbols.double_tokens_singlets()
 
 
 def tokenize(filename):
@@ -17,61 +24,53 @@ def tokenize(filename):
     return tokens
 
 
-# token_value can be a char array or a string
-def create_token(token_value):
-    token_string = ''.join(token_value)
-    if token_string in CommonTokens.TOKENS:
-        return Token(token_string, CommonTokens.TOKENS[token_string])
-    else:
-        for key in Identifiers.TOKENS:
-            if re.match(key, token_string):
-                return Token(token_string, Identifiers.TOKENS[key])
-    raise Exception("Unexpected token: {}".format(token_string))
-
-
 def tokenize_line(code_line, line_number):
     line_tokens = []
-    current_token = []  # temp char array
-    for char in code_line:
-        if char == '\n':
-            if current_token:
-                try:
-                    line_tokens.append(create_token(current_token))
-                    break
-                except Exception as e:
-                    raise Exception("{} at line {}".format(e, line_number))
-        if current_token and current_token[-1] in PAUSERS and char not in PAUSERS:
-            try:
-                line_tokens.append(create_token(current_token))
-                current_token = [char]
-            except Exception as e:
-                raise Exception("{} at line {}".format(e, line_number))
-        elif char == ' ':
-            if current_token:
-                try:
-                    line_tokens.append(create_token(current_token))
-                    current_token = []
-                except Exception as e:
-                    raise Exception("{} at line {}".format(e, line_number))
-        elif char in PAUSERS:
-            if not current_token:
-                current_token.append(char)
+    line = peekable(code_line)
+    ch = next(line)
+
+    while ch != "\n":
+
+        # Case 0: whitespace
+        if ch == " ":
+            pass
+
+        #  Case 1: doublet symbols
+        elif ch in doublet_pieces and ch + line.peek('') in Symbols.DOUBLETS:
+            line_tokens.append(Token(ch + next(line), Symbols.NAME))
+
+        #  Case 2: singlet symbols
+        elif ch in Symbols.SINGLETS:
+            line_tokens.append(Token(ch, Symbols.NAME))
+
+        #   Case 3: identifier or keyword
+        elif ch.isalpha():
+            token_chars = [ch]
+            while ''.join(line.peek('')).isalnum():
+                token_chars.append(next(line))
+            token = ''.join(token_chars)
+            line_tokens.append(Token(token, Keywords.NAME if token in Keywords.VALUES else Identifiers.NAME))
+
+        #   Case 4: number
+        elif ch.isdigit():
+            token_chars = [ch]
+            while ''.join(line.peek('')).isdigit():
+                token_chars.append(next(line))
             else:
-                current_token_string = "".join(current_token)
-                tentative_token = current_token_string + char
-                if tentative_token in PAUSERS:
-                    try:
-                        line_tokens.append(create_token(tentative_token))
-                        current_token = []
-                    except Exception as e:
-                        raise Exception("{} at line {}".format(e, line_number))
-                else:
-                    try:
-                        line_tokens.append(create_token(current_token_string))
-                        current_token = [char]
-                    except Exception as e:
-                        raise Exception("{} at line {}".format(e, line_number))
+                if line.peek('') == '.':
+                    token_chars.append(next(line))
+                    while ''.join(line.peek('')).isdigit():
+                        token_chars.append(next(line))
+            #  A letter immediately after a number is a syntactic error
+
+            if ''.join(line.peek('')).isalpha():
+                raise SyntaxError("Malformed number at line {}".format(line_number))
+
+            line_tokens.append(Token(''.join(token_chars), Numbers.NAME))
+
         else:
-            current_token.append(char)
+            raise SyntaxError("Unexpected token {} at line {}".format(ch, line_number))
+
+        ch = next(line)
 
     return line_tokens
