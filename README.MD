@@ -8,12 +8,12 @@ I've created this repo to document my process of learning how to design a simple
 I like writing bash scripts, but the syntax really puts me off. So for this exercise I'm designing a pythonic command language that compiles to bash. I'll call it **Calango**. Here is a sample of Calango:
  
 ```
-for n in [1..4]:
+for n in [1 .. 4]:
 	res= ps(a) | grep(-i n) | head(-1)
 	echo(res)
  ```
  
-- *[1..4]* is a range of numbers from 1 to 4.  
+- *[1 .. 4]* is a range of numbers from 1 to 4.  
 - *ps*, *grep*, *head* and *echo* are of course shell commands. The brackets are used for passing any number of arguments to these commands. 
 - "|" is your usual pipeline symbol. 
 - Whitespace is used to denote blocks, exactly as in python. However, Calango restricts it to tabs.
@@ -29,7 +29,7 @@ done
  
  We'll start with a simple subset of Calango:  
  ``` 
-echo([1..4])
+echo([1 .. 4])
 echo(1-1+4)
    ```  
  for which our compiler would output:
